@@ -14,7 +14,8 @@ options = vision.ObjectDetectorOptions(
     base_options=base_options,
     running_mode=vision.RunningMode.VIDEO,
     max_results=1,
-    score_threshold=0.4
+    score_threshold=0.4,
+    category_allowlist=["person"]
 )
 
 detector = vision.ObjectDetector.create_from_options(options)

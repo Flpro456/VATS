@@ -12,14 +12,15 @@ from pose_vats import landmarker
 from object_vats import object_detect
 from object_vats import detector
 from pose_vats import body_parts
+from pose_vats import detect_laser
 
 cap = cv2.VideoCapture(0)
 frame_update_1 = threading.Event()
 frame_update_2 = threading.Event()
 frame_lock = threading.Lock()
 
-pose_result = detect_pose(True, cv2.VideoCapture(0).read()[0])
-object_result = object_detect(True, cv2.VideoCapture(0).read()[0])
+pose_result = []
+object_result = []
 
 def record():
     global frame
@@ -50,7 +51,7 @@ def model_2():
             pose_result = detect_pose(success, pose_frame)
 
 def draw(frame, landmarks, objects):
-    width, height, _ = frame.shape
+    height, width, _ = frame.shape
     for landmark in landmarks:            
         if landmark[2] in body_parts:
             cv2.rectangle(
@@ -69,6 +70,17 @@ def draw(frame, landmarks, objects):
                 (255, 255, 255),
                 2
             )
+            if detect_laser(frame) != None:
+                cv2.putText(
+                    frame,
+                    str(int(cv2.norm((landmark[0], landmark[1]), (0, 0)))),
+                    (landmark[0] - 50, landmark[1] - 50),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (255, 255, 255),
+                    2
+                )
+            cv2.drawMarker(frame, detect_laser(frame), (255, 255, 255), 1, 20, 10)
     for object in objects:
         cv2.rectangle(
             frame,
@@ -86,6 +98,7 @@ def draw(frame, landmarks, objects):
             (0, 0, 0),
             2
         )
+    
 
 if cap.isOpened():
     global frame
