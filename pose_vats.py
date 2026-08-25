@@ -107,7 +107,7 @@ def detect_pose(success, frame):
 
         frame_timestamp_ms += 33
 
-
+        landmark_list = []
         # Dibujar landmarks
         if result.pose_landmarks:
 
@@ -121,30 +121,17 @@ def detect_pose(success, frame):
                 x = int(landmark.x * width)
                 y = int(landmark.y * height)
                 
-                if index in body_parts:
-                    cv2.rectangle(
-                        frame,
-                        (x, y),
-                        (x + 50, y -20),
-                        (0, 165, 255),
-                        30
-                    )
-                    cv2.putText(
-                        frame,
-                        body_parts[index],
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (255, 255, 255),
-                        2
-                    )
-                    if detect_laser(frame) != None:
-                        cv2.putText(
-                            frame,
-                            str(int(cv2.norm((x, y), src2=detect_laser(frame), normType=cv2.NORM_L2, mask=None) / 4 if (cv2.norm((x, y), src2=detect_laser(frame), normType=cv2.NORM_L2, mask=None)) < 400 else 0)),
-                            (x - 50, y - 50),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            1,
-                            (255, 255, 255),
-                            2
-                        )
+                
+                landmark_list.append((x, y, index))
+
+        return landmark_list
+                    # if detect_laser(frame) != None:
+                    #     cv2.putText(
+                    #         frame,
+                    #         str(int(cv2.norm((x, y), src2=detect_laser(frame), normType=cv2.NORM_L2, mask=None) / 4 if (cv2.norm((x, y), src2=detect_laser(frame), normType=cv2.NORM_L2, mask=None)) < 400 else 0)),
+                    #         (x - 50, y - 50),
+                    #         cv2.FONT_HERSHEY_SIMPLEX,
+                    #         1,
+                    #         (255, 255, 255),
+                    #         2
+                    #     )

@@ -41,6 +41,7 @@ def object_detect(success, frame):
 
     frame_timestamp_ms += 33
 
+    object_list = []
     # Dibujar detecciones
     for detection in result.detections:
 
@@ -51,14 +52,6 @@ def object_detect(success, frame):
         w = bbox.width
         h = bbox.height
 
-        cv2.rectangle(
-            frame,
-            (x, y),
-            (x + w, y + h),
-            (0, 165, 255),
-            2
-        )
-
         # Nombre de la clase
         if detection.categories:
 
@@ -66,12 +59,6 @@ def object_detect(success, frame):
 
             text = f"{category.category_name} {category.score:.0%}"
 
-            cv2.putText(
-                frame,
-                text,
-                (x, max(y - 10, 20)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 0, 0),
-                2
-            )
+            
+            object_list.append((x, y, w, h, text))
+    return object_list
