@@ -39,53 +39,53 @@ landmarker = vision.PoseLandmarker.create_from_options(options_pose)
 
 frame_timestamp_ms = 0
 
-def detect_laser(frame_bgr, min_area=4, max_area=400):
-    hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
+# def detect_laser(frame_bgr, min_area=4, max_area=400):
+#     hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
 
-    # Rango de verde (ajustar según cámara/iluminación real)
-    lower_green = np.array([40, 60, 200])   # H, S, V — V alto = brillo
-    upper_green = np.array([85, 255, 255])
-    mask = cv2.inRange(hsv, lower_green, upper_green)
+#     # Rango de verde (ajustar según cámara/iluminación real)
+#     lower_green = np.array([40, 60, 200])   # H, S, V — V alto = brillo
+#     upper_green = np.array([85, 255, 255])
+#     mask = cv2.inRange(hsv, lower_green, upper_green)
 
-    # Filtrado morfológico: elimina ruido pequeño, rellena huecos
-    kernel = np.ones((3, 3), np.uint8)
-    mask = cv2.erode(mask, kernel, iterations=1)
-    mask = cv2.dilate(mask, kernel, iterations=2)
+#     # Filtrado morfológico: elimina ruido pequeño, rellena huecos
+#     kernel = np.ones((3, 3), np.uint8)
+#     mask = cv2.erode(mask, kernel, iterations=1)
+#     mask = cv2.dilate(mask, kernel, iterations=2)
 
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        return None
+#     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     if not contours:
+#         return None
 
-    # Candidato: contorno más "compacto" y brillante dentro del rango de área esperado
-    best = None
-    best_score = -1
-    for c in contours:
-        area = cv2.contourArea(c)
-        if area < min_area or area > max_area:
-            continue
-        # circularidad como filtro de forma (1.0 = círculo perfecto)
-        perimeter = cv2.arcLength(c, True)
-        if perimeter == 0:
-            continue
-        circularity = 4 * np.pi * area / (perimeter ** 2)
-        score = circularity  # se puede combinar con brillo medio del contorno
-        if score > best_score:
-            best_score = score
-            best = c
+#     # Candidato: contorno más "compacto" y brillante dentro del rango de área esperado
+#     best = None
+#     best_score = -1
+#     for c in contours:
+#         area = cv2.contourArea(c)
+#         if area < min_area or area > max_area:
+#             continue
+#         # circularidad como filtro de forma (1.0 = círculo perfecto)
+#         perimeter = cv2.arcLength(c, True)
+#         if perimeter == 0:
+#             continue
+#         circularity = 4 * np.pi * area / (perimeter ** 2)
+#         score = circularity  # se puede combinar con brillo medio del contorno
+#         if score > best_score:
+#             best_score = score
+#             best = c
 
-    if best is None:
-        return None
+#     if best is None:
+#         return None
 
-    M = cv2.moments(best)
-    if M["m00"] == 0:
-        return None
+#     M = cv2.moments(best)
+#     if M["m00"] == 0:
+#         return None
 
-    cx = int(M["m10"] / M["m00"])
-    cy = int(M["m01"] / M["m00"])
-    return (cx, cy)
+#     cx = int(M["m10"] / M["m00"])
+#     cy = int(M["m01"] / M["m00"])
+#     return (cx, cy)
 
 def detect_pose(success, frame):
-        cv2.circle(frame, detect_laser(frame), 5, (0, 165, 255), -1)
+        #cv2.circle(frame, detect_laser(frame), 5, (0, 165, 255), -1)
         global frame_timestamp_ms
         if not success:
             print("No se pudo leer la webcam.")

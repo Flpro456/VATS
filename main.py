@@ -18,6 +18,9 @@ frame_update_1 = threading.Event()
 frame_update_2 = threading.Event()
 frame_lock = threading.Lock()
 
+pose_result = detect_pose(True, cv2.VideoCapture(0).read()[0])
+object_result = object_detect(True, cv2.VideoCapture(0).read()[0])
+
 def record():
     global frame
     global success
@@ -27,26 +30,27 @@ def record():
     frame_update_2.set()
 
 def model_1():
+    global object_result
     global nuevo_frame
     while True:
         if frame_update_1.is_set():
             with frame_lock:
                 nuevo_frame = frame.copy()
-            object_detect(success, nuevo_frame)
             frame_update_1.clear()
+            object_result = object_detect(success, nuevo_frame)
 
 def model_2():
+    global pose_result
     global pose_frame
     while True:
         if frame_update_2.is_set():
             with frame_lock:
                 pose_frame = frame.copy()
-            
-            detect_pose(success, pose_frame)
             frame_update_2.clear()
+            pose_result = detect_pose(success, pose_frame)
 
 def draw(frame, landmarks, objects):
-    width, height, _ = frame.shape()
+    width, height, _ = frame.shape
     for landmark in landmarks:            
         if landmark[2] in body_parts:
             cv2.rectangle(
@@ -87,14 +91,14 @@ if cap.isOpened():
     global frame
     global success
     record()
-    model_1_detection = threading.Thread(target=model_1)
-    model_2_detection = threading.Thread(target=model_2)
-    model_1_detection.start()
-    model_2_detection.start()
+    pose_thread = threading.Thread(target=model_1)
+    object_thread = threading.Thread(target=model_2)
+    pose_thread.start()
+    object_thread.start()
     while True:
         
         record()
-        draw(frame, detect_pose(success, frame), object_detect(success=success, frame=frame))
+        draw(frame, pose_result, object_result)
         cv2.imshow("VATS - Pose Test", frame)
 
         # ESC para salir
