@@ -14,7 +14,7 @@ from object_vats import detector
 from pose_vats import body_parts
 from pose_vats import detect_laser
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 frame_update_1 = threading.Event()
 frame_update_2 = threading.Event()
 frame_lock = threading.Lock()
@@ -52,6 +52,7 @@ def model_2():
 
 def draw(frame, landmarks, objects):
     height, width, _ = frame.shape
+    laser = detect_laser(frame)
     for landmark in landmarks:            
         if landmark[2] in body_parts:
             cv2.rectangle(
@@ -70,17 +71,17 @@ def draw(frame, landmarks, objects):
                 (255, 255, 255),
                 2
             )
-            if detect_laser(frame) != None:
+            if laser is not None:
                 cv2.putText(
                     frame,
-                    str(int(cv2.norm((landmark[0], landmark[1]), (0, 0)))),
+                    str(int(100 - cv2.norm((landmark[0], landmark[1]), laser, cv2.NORM_L2) / 3 * (1 - landmark[3]) if cv2.norm((landmark[0], landmark[1]), laser, cv2.NORM_L2) * (1 - landmark[3]) < 300 else 0)),
                     (landmark[0] - 50, landmark[1] - 50),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1,
                     (255, 255, 255),
                     2
                 )
-            cv2.drawMarker(frame, detect_laser(frame), (255, 255, 255), 1, 20, 10)
+            cv2.drawMarker(frame, laser, (255, 255, 255), 1, 20, 10)
     for object in objects:
         cv2.rectangle(
             frame,
@@ -109,7 +110,13 @@ if cap.isOpened():
     pose_thread.start()
     object_thread.start()
     while True:
-        
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+
+        s *= 10
+
+        frame = cv2.merge((h, s, v))
+
         record()
         draw(frame, pose_result, object_result)
         cv2.imshow("VATS - Pose Test", frame)
