@@ -14,7 +14,7 @@ from object_vats import detector
 from pose_vats import body_parts
 from pose_vats import detect_laser
 
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 frame_update_1 = threading.Event()
 frame_update_2 = threading.Event()
 frame_lock = threading.Lock()
@@ -55,10 +55,13 @@ def draw(frame, landmarks, objects):
     laser = detect_laser(frame)
     for landmark in landmarks:            
         if landmark[2] in body_parts:
+            word_len = 0
+            for i in range(len(body_parts[landmark[2]])):
+                word_len +=20
             cv2.rectangle(
                 frame,
                 (landmark[0], landmark[1]),
-                (landmark[0] + 50, landmark[1] -20),
+                (landmark[0] + word_len, landmark[1] -20),
                 (0, 165, 255),
                 30
             )

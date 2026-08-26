@@ -42,14 +42,10 @@ frame_timestamp_ms = 0
 def detect_laser(frame_bgr, min_area=4, max_area=400):
     hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
 
-    v = hsv[:, :, 2]
-
-    mask = cv2.threshold(
-        v,
-        240,
-        255,
-        cv2.THRESH_BINARY
-    )   
+    # Rango de verde (ajustar según cámara/iluminación real)
+    lower_green = np.array([40, 60, 200])   # H, S, V — V alto = brillo
+    upper_green = np.array([85, 255, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
 
     # Filtrado morfológico: elimina ruido pequeño, rellena huecos
     kernel = np.ones((3, 3), np.uint8)
@@ -124,7 +120,7 @@ def detect_pose(success, frame):
                 index += 1
                 x = int(landmark.x * width)
                 y = int(landmark.y * height)
-                z = int(landmark.z)
+                z = landmark.z
                 
                 
                 landmark_list.append((x, y, index, z))
